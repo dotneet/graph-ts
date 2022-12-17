@@ -1,6 +1,6 @@
 import { Edge, Graph, Vertex } from "./graph";
 
-type TSortResult = {
+export type TSortResult = {
   result: Vertex[];
   restEdges: Edge[];
 };
