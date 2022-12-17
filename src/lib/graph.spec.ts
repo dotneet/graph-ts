@@ -1,9 +1,9 @@
 import test from "ava";
 
-import { createGraph, Graph } from "./graph";
+import { Graph } from "./graph";
 
-test("createGraph", (t) => {
-  const g: Graph = createGraph();
+test("graph", (t) => {
+  const g: Graph = new Graph();
   const v1 = g.createVertex("human", {
     name: "Bob",
   });

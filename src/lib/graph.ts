@@ -48,13 +48,6 @@ export class Edge {
   ) {}
 }
 
-export class Traversal {
-  readonly graph: Graph;
-  constructor(graph: Graph) {
-    this.graph = graph;
-  }
-}
-
 export class Graph {
   vertices: Set<Vertex>;
   edges: Set<Edge>;
@@ -107,12 +100,4 @@ export class Graph {
     edge.inVertex.outEdges.delete(edge);
     edge.outVertex.inEdges.delete(edge);
   }
-
-  createTraversal(): Traversal {
-    return new Traversal(this);
-  }
-}
-
-export function createGraph(): Graph {
-  return new Graph();
 }
