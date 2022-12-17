@@ -1,6 +1,6 @@
 {
-  "name": "graph-ts",
-  "version": "1.0.0",
+  "name": "@devneko/graph-ts",
+  "version": "0.1.0",
   "description": "in-memory graph database written in typescript.",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
