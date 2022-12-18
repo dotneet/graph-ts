@@ -36,6 +36,21 @@ test('traversal', (t) => {
   const traversalResult2 = g.traversal().V().hasLabel('animal').toArray();
   const nums2 = traversalResult2.map((v) => v.props.get('n') as number);
   t.assert(JSON.stringify(nums2), JSON.stringify([4, 5]));
+
+  // has
+  t.is(g.V().has('n', 5).toArray().length, 1);
+
+  // filter
+  t.is(
+    g
+      .V()
+      .filter((v) => v.props.get('n') >= 3)
+      .toArray().length,
+    3
+  );
+
+  // limit
+  t.is(g.V().limit(2).toArray().length, 2);
 });
 
 test('depth first search', (t) => {

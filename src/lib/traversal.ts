@@ -1,8 +1,21 @@
-import { Graph, Vertex } from './graph';
+import { Graph, PropsValue, Vertex } from './graph';
 
 export type TraversalCommandV = {
   type: 'TraversalCommandV';
   vertex?: Vertex;
+};
+export type TraversalCommandFilter = {
+  type: 'TraversalCommandFilter';
+  pred: (v: Vertex) => boolean;
+};
+export type TraversalCommandLimit = {
+  type: 'TraversalCommandLimit';
+  limit: number;
+};
+export type TraversalCommandHas = {
+  type: 'TraversalCommandHas';
+  name: string;
+  value: PropsValue;
 };
 export type TraversalCommandHasLabel = {
   type: 'TraversalCommandHasLabel';
@@ -18,6 +31,9 @@ export type TraversalCommandIn = {
 };
 export type TraversalCommand =
   | TraversalCommandV
+  | TraversalCommandFilter
+  | TraversalCommandLimit
+  | TraversalCommandHas
   | TraversalCommandHasLabel
   | TraversalCommandOut
   | TraversalCommandIn;
@@ -29,6 +45,18 @@ export class Traversal {
   ) {}
   V(vertex?: Vertex): Traversal {
     this._commands.push({ type: 'TraversalCommandV', vertex });
+    return this;
+  }
+  limit(l: number): Traversal {
+    this._commands.push({ type: 'TraversalCommandLimit', limit: l });
+    return this;
+  }
+  filter(pred: (v: Vertex) => boolean): Traversal {
+    this._commands.push({ type: 'TraversalCommandFilter', pred });
+    return this;
+  }
+  has(name: string, value: PropsValue): Traversal {
+    this._commands.push({ type: 'TraversalCommandHas', name, value });
     return this;
   }
   hasLabel(label: string): Traversal {
@@ -55,6 +83,20 @@ export class Traversal {
           } else {
             result = Array.from(this._graph.vertices.values());
           }
+          break;
+        case 'TraversalCommandLimit':
+          result = result.splice(0, cmd.limit);
+          break;
+        case 'TraversalCommandFilter':
+          result = result.filter((v) => {
+            return cmd.pred(v);
+          });
+          break;
+        case 'TraversalCommandHas':
+          result = result.filter((v) => {
+            const value = v.props.get(cmd.name);
+            return value !== undefined && value === cmd.value;
+          });
           break;
         case 'TraversalCommandHasLabel':
           result = result.filter((v) => v.label === cmd.label);

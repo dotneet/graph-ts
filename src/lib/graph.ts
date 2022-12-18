@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Traversal } from './traversal';
 
-type PropsValue = string | number;
+export type PropsValue = string | number;
 type PropsParameter =
   | Record<string, PropsValue>
   | ReadonlyMap<string, PropsValue>;
