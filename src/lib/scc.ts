@@ -1,6 +1,11 @@
 import { Graph, Vertex } from './graph';
-import { depthFirstSearch } from './traversal';
+import {
+  createTraversalContext,
+  depthFirstSearch,
+  depthFirstSearchWithContext,
+} from './traversal';
 
+// Decomposition of Strongly Connected Components
 export function decomposeSCC(graph: Graph): Vertex[][] {
   const visited: Set<string> = new Set();
   let selected: Vertex | null = null;
@@ -37,7 +42,13 @@ export function decomposeSCC(graph: Graph): Vertex[][] {
         }
       }
     }
-    const vertices = depthFirstSearch(maxIndexVertex, [], reverseGraphVisited);
+    // excludes visited vertices from search targets.
+    const traversalContext = createTraversalContext();
+    traversalContext.visited = new Set(reverseGraphVisited);
+    const vertices = depthFirstSearchWithContext(
+      maxIndexVertex,
+      traversalContext
+    );
     components.push(vertices);
     vertices.forEach((v) => {
       reverseGraphVisited.add(v.id);

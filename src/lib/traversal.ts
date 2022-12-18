@@ -1,16 +1,31 @@
 import { Vertex } from './graph';
 
-export function depthFirstSearch(
+type TraversalContext = {
+  result: Vertex[];
+  visited: Set<string>;
+};
+
+export function createTraversalContext(): TraversalContext {
+  return {
+    result: [],
+    visited: new Set(),
+  };
+}
+
+export function depthFirstSearch(origin: Vertex): Vertex[] {
+  const context = createTraversalContext();
+  return depthFirstSearchWithContext(origin, context);
+}
+export function depthFirstSearchWithContext(
   origin: Vertex,
-  result: Vertex[] = [],
-  visited: Set<string> = new Set()
+  context: TraversalContext
 ): Vertex[] {
-  result.push(origin);
-  visited.add(origin.id);
+  context.result.push(origin);
+  context.visited.add(origin.id);
   origin.outVertices.forEach((v) => {
-    if (!visited.has(v.id)) {
-      depthFirstSearch(v, result, visited);
+    if (!context.visited.has(v.id)) {
+      depthFirstSearchWithContext(v, context);
     }
   });
-  return result;
+  return context.result;
 }
