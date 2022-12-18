@@ -1,6 +1,6 @@
 import { Graph, Vertex } from './graph';
 import {
-  createTraversalContext,
+  createSearchContext,
   depthFirstSearch,
   depthFirstSearchWithContext,
 } from './traversal';
@@ -43,7 +43,7 @@ export function decomposeSCC(graph: Graph): Vertex[][] {
       }
     }
     // excludes visited vertices from search targets.
-    const traversalContext = createTraversalContext();
+    const traversalContext = createSearchContext();
     traversalContext.visited = new Set(reverseGraphVisited);
     const vertices = depthFirstSearchWithContext(
       maxIndexVertex,

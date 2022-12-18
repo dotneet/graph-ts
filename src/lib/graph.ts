@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { Traversal } from './traversal';
 
 type PropsValue = string | number;
 type PropsParameter =
@@ -85,6 +86,10 @@ export class Graph {
 
   get edges(): ReadonlyMap<string, Edge> {
     return this._edges;
+  }
+
+  traversal(): Traversal {
+    return new Traversal(this);
   }
 
   createVertex(
