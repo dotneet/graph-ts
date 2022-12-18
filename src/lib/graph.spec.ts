@@ -1,20 +1,20 @@
-import test from "ava";
+import test from 'ava';
 
-import { Graph } from "./graph";
+import { Graph } from './graph';
 
-test("graph", (t) => {
+test('graph', (t) => {
   const g: Graph = new Graph();
-  const v1 = g.createVertex("human", {
-    name: "Bob",
+  const v1 = g.createVertex('human', {
+    name: 'Bob',
   });
-  const v2 = g.createVertex("human", {
-    name: "Alice",
+  const v2 = g.createVertex('human', {
+    name: 'Alice',
   });
   const edge = g.createEdge(v1, v2);
   t.is(edge.inVertex.id, v1.id);
   t.is(edge.outVertex.id, v2.id);
-  t.is(v1.props.get("name"), "Bob");
-  t.is(v2.props.get("name"), "Alice");
+  t.is(v1.props.get('name'), 'Bob');
+  t.is(v2.props.get('name'), 'Alice');
   t.is(g.vertices.size, 2);
 
   t.is(v1.outEdges.size, 1);
@@ -31,4 +31,20 @@ test("graph", (t) => {
   g.deleteVertex(v1);
   g.deleteVertex(v2);
   t.is(g.vertices.size, 0);
+});
+
+test('reverse graph', (t) => {
+  const g: Graph = new Graph();
+  const v1 = g.createVertex('human', {
+    name: 'Bob',
+  });
+  const v2 = g.createVertex('human', {
+    name: 'Alice',
+  });
+  const e = g.createEdge(v1, v2);
+
+  const rg = g.reverse();
+  const reversedEdge = rg.edges.get(e.id);
+  t.is(reversedEdge.inVertex.id, e.outVertex.id);
+  t.is(reversedEdge.outVertex.id, e.inVertex.id);
 });

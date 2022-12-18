@@ -1,13 +1,11 @@
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 
 type PropsValue = string | number;
 type PropsParameter =
   | Record<string, PropsValue>
   | ReadonlyMap<string, PropsValue>;
 
-function obj2map(
-  objOrMap: PropsParameter,
-): Map<string, PropsValue> {
+function obj2map(objOrMap: PropsParameter): Map<string, PropsValue> {
   if (objOrMap instanceof Map) {
     return obj2map as unknown as Map<string, PropsValue>;
   } else if (objOrMap instanceof Object) {
@@ -22,19 +20,40 @@ export class Vertex {
     public readonly id: string,
     public readonly label: string,
     public props: Map<string, PropsValue>,
-    public inEdges: Set<Edge> = new Set(),
-    public outEdges: Set<Edge> = new Set(),
+    private _inEdges: Set<Edge> = new Set(),
+    private _outEdges: Set<Edge> = new Set()
   ) {}
+
+  get inEdges() {
+    return this._inEdges;
+  }
+
+  get outEdges() {
+    return this._outEdges;
+  }
+
+  addInEdge(edge: Edge) {
+    this._inEdges.add(edge);
+  }
+  addOutEdge(edge: Edge) {
+    this._outEdges.add(edge);
+  }
+  deleteInEdge(edge: Edge) {
+    this._inEdges.delete(edge);
+  }
+  deleteOutEdge(edge: Edge) {
+    this._outEdges.delete(edge);
+  }
 
   outVertices(): Set<Vertex> {
     const result: Set<Vertex> = new Set();
-    this.outEdges.forEach((e) => result.add(e.outVertex));
+    this._outEdges.forEach((e) => result.add(e.outVertex));
     return result;
   }
 
   inVertices(): Set<Vertex> {
     const result: Set<Vertex> = new Set();
-    this.inEdges.forEach((e) => result.add(e.outVertex));
+    this._inEdges.forEach((e) => result.add(e.outVertex));
     return result;
   }
 }
@@ -42,62 +61,90 @@ export class Vertex {
 export class Edge {
   constructor(
     public readonly id: string,
-    public inVertex: Vertex,
-    public outVertex: Vertex,
-    public props: Map<string, PropsValue>,
+    private _outVertex: Vertex,
+    private _inVertex: Vertex,
+    public props: Map<string, PropsValue>
   ) {}
+  get outVertex() {
+    return this._outVertex;
+  }
+  get inVertex() {
+    return this._inVertex;
+  }
 }
 
 export class Graph {
-  vertices: Set<Vertex>;
-  edges: Set<Edge>;
+  constructor(
+    private _vertices: Map<string, Vertex> = new Map(),
+    private _edges: Map<string, Edge> = new Map()
+  ) {}
 
-  constructor() {
-    this.vertices = new Set();
-    this.edges = new Set();
+  get vertices(): ReadonlyMap<string, Vertex> {
+    return this._vertices;
+  }
+
+  get edges(): ReadonlyMap<string, Edge> {
+    return this._edges;
   }
 
   createVertex(
     label: string,
     props: PropsParameter = new Map(),
+    id: string = uuidv4()
   ): Vertex {
-    const v: Vertex = new Vertex(
-      uuidv4(),
-      label,
-      obj2map(props),
-    );
-    this.vertices.add(v);
+    const v: Vertex = new Vertex(id, label, obj2map(props));
+    this._vertices.set(id, v);
     return v;
   }
 
+  // outVertex -- edge -> inVertex
   createEdge(
-    inVertex: Vertex,
     outVertex: Vertex,
+    inVertex: Vertex,
     props: PropsParameter = new Map(),
+    id: string = uuidv4()
   ): Edge {
-    const e: Edge = new Edge(
-      uuidv4(),
-      inVertex,
-      outVertex,
-      obj2map(props),
-    );
-    inVertex.outEdges.add(e);
-    outVertex.inEdges.add(e);
-    this.edges.add(e);
+    const e: Edge = new Edge(id, inVertex, outVertex, obj2map(props));
+    outVertex.addOutEdge(e);
+    inVertex.addInEdge(e);
+    this._edges.set(id, e);
     return e;
   }
 
   deleteVertex(vertex: Vertex): void {
-    vertex.inEdges.forEach((e) => this.edges.delete(e));
-    vertex.outEdges.forEach((e) => this.edges.delete(e));
-    this.vertices.delete(vertex);
+    vertex.inEdges.forEach((e) => this._edges.delete(e.id));
+    vertex.outEdges.forEach((e) => this._edges.delete(e.id));
+    this._vertices.delete(vertex.id);
   }
 
-  deleteEdge(
-    edge: Edge,
-  ): void {
-    this.edges.delete(edge);
-    edge.inVertex.outEdges.delete(edge);
-    edge.outVertex.inEdges.delete(edge);
+  deleteEdge(edge: Edge): void {
+    this._edges.delete(edge.id);
+    edge.inVertex.deleteOutEdge(edge);
+    edge.outVertex.deleteInEdge(edge);
+  }
+
+  // return new reverse graph.
+  reverse(): Graph {
+    const graph = this.clone();
+    const edges = graph._edges;
+    edges.forEach((e) => {
+      graph.createEdge(e.inVertex, e.outVertex, e.props, e.id);
+    });
+    return graph;
+  }
+
+  clone(): Graph {
+    const graph = new Graph();
+    for (const entry of this._vertices) {
+      const v = entry[1];
+      graph.createVertex(v.label, new Map(v.props), v.id);
+    }
+    for (const entry of this._edges) {
+      const e = entry[1];
+      const outV = this._vertices.get(e.outVertex.id);
+      const inV = this._vertices.get(e.inVertex.id);
+      graph.createEdge(outV, inV, {}, e.id);
+    }
+    return graph;
   }
 }

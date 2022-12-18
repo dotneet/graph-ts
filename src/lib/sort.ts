@@ -1,4 +1,4 @@
-import { Edge, Graph, Vertex } from "./graph";
+import { Edge, Graph, Vertex } from './graph';
 
 export type TSortResult = {
   result: Vertex[];
@@ -27,6 +27,6 @@ export function tsort(graph: Graph): TSortResult {
   }
   return {
     result,
-    restEdges: Array.from(graph.edges),
+    restEdges: Array.from(graph.edges.values()),
   };
 }
