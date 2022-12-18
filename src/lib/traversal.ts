@@ -126,12 +126,14 @@ export class Traversal {
 type SearchContext = {
   result: Vertex[];
   visited: Set<string>;
+  postOrder: boolean;
 };
 
-export function createSearchContext(): SearchContext {
+export function createSearchContext(postOrder = false): SearchContext {
   return {
     result: [],
     visited: new Set(),
+    postOrder,
   };
 }
 
@@ -143,12 +145,17 @@ export function depthFirstSearchWithContext(
   origin: Vertex,
   context: SearchContext
 ): Vertex[] {
-  context.result.push(origin);
   context.visited.add(origin.id);
+  if (!context.postOrder) {
+    context.result.push(origin);
+  }
   origin.out().forEach((v) => {
     if (!context.visited.has(v.id)) {
       depthFirstSearchWithContext(v, context);
     }
   });
+  if (context.postOrder) {
+    context.result.push(origin);
+  }
   return context.result;
 }

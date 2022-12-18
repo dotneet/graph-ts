@@ -16,10 +16,14 @@ export function decomposeSCC(graph: Graph): Vertex[][] {
     if (selected === null) {
       break;
     }
-    const context = createSearchContext();
+    const context = createSearchContext(true);
     context.visited = visited;
     const vertices = depthFirstSearchWithContext(selected, context);
-    vertices.reverse().forEach((v) => {
+    vertices.forEach((v) => {
+      const i = v.props.get('index');
+      if (i !== undefined) {
+        console.log('aa');
+      }
       v.props.set('index', index++);
       visited.add(v.id);
     });
