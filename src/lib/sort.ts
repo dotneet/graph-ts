@@ -7,9 +7,10 @@ export type TSortResult = {
 
 // Topological Sort
 export function tsort(graph: Graph): TSortResult {
+  const g = graph.clone();
   const result: Vertex[] = [];
   const s: Vertex[] = [];
-  graph.vertices.forEach((v) => {
+  g.vertices.forEach((v) => {
     if (v.inEdges.size === 0) {
       s.push(v);
     }
@@ -19,7 +20,7 @@ export function tsort(graph: Graph): TSortResult {
     result.push(n);
     for (const e of n.outEdges) {
       const m = e.outVertex;
-      graph.deleteEdge(e);
+      g.deleteEdge(e);
       if (m.inEdges.size === 0) {
         s.push(m);
       }
