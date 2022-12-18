@@ -19,7 +19,7 @@ export function tsort(graph: Graph): TSortResult {
     const n = s.shift();
     result.push(n);
     for (const e of n.outEdges) {
-      const m = e.outVertex;
+      const m = e.inVertex;
       g.deleteEdge(e);
       if (m.inEdges.size === 0) {
         s.push(m);
@@ -28,6 +28,6 @@ export function tsort(graph: Graph): TSortResult {
   }
   return {
     result,
-    restEdges: Array.from(graph.edges.values()),
+    restEdges: Array.from(g.edges.values()),
   };
 }

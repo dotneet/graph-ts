@@ -7,7 +7,7 @@ type PropsParameter =
 
 function obj2map(objOrMap: PropsParameter): Map<string, PropsValue> {
   if (objOrMap instanceof Map) {
-    return obj2map as unknown as Map<string, PropsValue>;
+    return objOrMap as unknown as Map<string, PropsValue>;
   } else if (objOrMap instanceof Object) {
     return new Map(Object.entries(objOrMap));
   } else {
@@ -45,13 +45,13 @@ export class Vertex {
     this._outEdges.delete(edge);
   }
 
-  outVertices(): Set<Vertex> {
+  get outVertices(): Set<Vertex> {
     const result: Set<Vertex> = new Set();
-    this._outEdges.forEach((e) => result.add(e.outVertex));
+    this._outEdges.forEach((e) => result.add(e.inVertex));
     return result;
   }
 
-  inVertices(): Set<Vertex> {
+  get inVertices(): Set<Vertex> {
     const result: Set<Vertex> = new Set();
     this._inEdges.forEach((e) => result.add(e.outVertex));
     return result;
@@ -104,7 +104,7 @@ export class Graph {
     props: PropsParameter = new Map(),
     id: string = uuidv4()
   ): Edge {
-    const e: Edge = new Edge(id, inVertex, outVertex, obj2map(props));
+    const e: Edge = new Edge(id, outVertex, inVertex, obj2map(props));
     outVertex.addOutEdge(e);
     inVertex.addInEdge(e);
     this._edges.set(id, e);
@@ -119,8 +119,17 @@ export class Graph {
 
   deleteEdge(edge: Edge): void {
     this._edges.delete(edge.id);
-    edge.inVertex.deleteOutEdge(edge);
-    edge.outVertex.deleteInEdge(edge);
+    edge.outVertex.deleteOutEdge(edge);
+    edge.inVertex.deleteInEdge(edge);
+  }
+
+  dump(): void {
+    this._vertices.forEach((v) => {
+      console.log(v);
+    });
+    this._edges.forEach((e) => {
+      console.log(e);
+    });
   }
 
   // return new reverse graph.
@@ -135,15 +144,18 @@ export class Graph {
 
   clone(): Graph {
     const graph = new Graph();
+    const vertices: Map<string, Vertex> = new Map();
     for (const entry of this._vertices) {
       const v = entry[1];
-      graph.createVertex(v.label, new Map(v.props), v.id);
+      const newVertex = graph.createVertex(v.label, new Map(v.props), v.id);
+      vertices.set(newVertex.id, newVertex);
     }
     for (const entry of this._edges) {
       const e = entry[1];
-      const outV = this._vertices.get(e.outVertex.id);
-      const inV = this._vertices.get(e.inVertex.id);
-      graph.createEdge(outV, inV, {}, e.id);
+      const outV = vertices.get(e.outVertex.id);
+      const inV = vertices.get(e.inVertex.id);
+      const props = new Map(e.props);
+      graph.createEdge(outV, inV, props, e.id);
     }
     return graph;
   }
