@@ -135,7 +135,10 @@ export class Graph {
   // return new reverse graph.
   reverse(): Graph {
     const graph = this.clone();
-    const edges = graph._edges;
+    const edges = new Map(graph._edges);
+    edges.forEach((e) => {
+      graph.deleteEdge(e);
+    });
     edges.forEach((e) => {
       graph.createEdge(e.inVertex, e.outVertex, e.props, e.id);
     });
