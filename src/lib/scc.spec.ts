@@ -18,6 +18,8 @@ test('scc', (t) => {
   const e = createV('e');
   const f = createV('f');
   const g = createV('g');
+  const h = createV('h');
+  const i = createV('i');
   createEdge(a, b);
   createEdge(b, c);
   createEdge(c, a);
@@ -26,12 +28,19 @@ test('scc', (t) => {
   createEdge(e, f);
   createEdge(f, d);
   createEdge(f, g);
+  createEdge(g, h);
+  createEdge(d, h);
+  createEdge(i, h);
 
   const result = decomposeSCC(graph);
   const scc1 = result[0].map((v) => v.label).sort();
   const scc2 = result[1].map((v) => v.label).sort();
   const scc3 = result[2].map((v) => v.label).sort();
-  t.is(JSON.stringify(scc1), JSON.stringify(['a', 'b', 'c']));
-  t.is(JSON.stringify(scc2), JSON.stringify(['d', 'e', 'f']));
-  t.is(JSON.stringify(scc3), JSON.stringify(['g']));
+  const scc4 = result[3].map((v) => v.label).sort();
+  const scc5 = result[4].map((v) => v.label).sort();
+  t.is(JSON.stringify(scc1), JSON.stringify(['i']));
+  t.is(JSON.stringify(scc2), JSON.stringify(['a', 'b', 'c']));
+  t.is(JSON.stringify(scc3), JSON.stringify(['d', 'e', 'f']));
+  t.is(JSON.stringify(scc4), JSON.stringify(['g']));
+  t.is(JSON.stringify(scc5), JSON.stringify(['h']));
 });

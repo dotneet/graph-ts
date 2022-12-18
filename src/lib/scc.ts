@@ -1,9 +1,5 @@
 import { Graph, Vertex } from './graph';
-import {
-  createSearchContext,
-  depthFirstSearch,
-  depthFirstSearchWithContext,
-} from './traversal';
+import { createSearchContext, depthFirstSearchWithContext } from './traversal';
 
 // Decomposition of Strongly Connected Components
 export function decomposeSCC(graph: Graph): Vertex[][] {
@@ -20,7 +16,9 @@ export function decomposeSCC(graph: Graph): Vertex[][] {
     if (selected === null) {
       break;
     }
-    const vertices = depthFirstSearch(selected);
+    const context = createSearchContext();
+    context.visited = visited;
+    const vertices = depthFirstSearchWithContext(selected, context);
     vertices.reverse().forEach((v) => {
       v.props.set('index', index++);
       visited.add(v.id);
