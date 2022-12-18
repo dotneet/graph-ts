@@ -13,18 +13,20 @@ in-memory graph database written in typescript.
 
 ```ts
 const g: Graph = new Graph();
-const v1 = g.createVertex('people', {
+const v1 = g.addVertex('people', {
   name: 'Bob',
 });
-const v2 = g.createVertex('people', {
+const v2 = g.addVertex('people', {
   name: 'Alice',
 });
-const v3 = g.createVertex('item', {
+const v3 = g.addVertex('item', {
   name: 'Pencil',
 });
-g.createEdge(v1, v2);
-g.createEdge(v1, v3);
+g.addEdge('knows', v1, v2);
+g.addEdge('has', v1, v3);
 
 // returns vertices that have 'people' label.
-g.traversal().V().hasLabel('people').toArray();
+g.V().hasLabel('people').toArray();
+// returns the item that Bob has.
+g.V(v1).out('has').toArray();
 ```

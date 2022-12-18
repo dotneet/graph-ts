@@ -1,32 +1,33 @@
 import test from 'ava';
 
-import { Graph } from './graph';
+import { Graph, Vertex } from './graph';
 import { depthFirstSearch } from './traversal';
 
 test('traversal', (t) => {
   const g: Graph = new Graph();
-  const v1 = g.createVertex('item', {
+  const v1 = g.addVertex('item', {
     n: 1,
   });
-  const v2 = g.createVertex('item', {
+  const v2 = g.addVertex('item', {
     n: 2,
   });
-  const v3 = g.createVertex('item', {
+  const v3 = g.addVertex('item', {
     n: 3,
   });
-  const v4 = g.createVertex('animal', {
+  const v4 = g.addVertex('animal', {
     n: 4,
   });
-  const v5 = g.createVertex('animal', {
+  const v5 = g.addVertex('animal', {
     n: 5,
   });
-  g.createEdge(v1, v3);
-  g.createEdge(v1, v4);
-  g.createEdge(v2, v3);
-  g.createEdge(v2, v4);
-  g.createEdge(v3, v5);
-  g.createEdge(v4, v5);
-  g.createEdge(v5, v1);
+  const addEdge = (v1: Vertex, v2: Vertex) => g.addEdge('a', v1, v2);
+  addEdge(v1, v3);
+  addEdge(v1, v4);
+  addEdge(v2, v3);
+  addEdge(v2, v4);
+  addEdge(v3, v5);
+  addEdge(v4, v5);
+  addEdge(v5, v1);
 
   const traversalResult = g.traversal().V(v1).out().toArray();
   const nums = traversalResult.map((v) => v.props.get('n') as number);
@@ -39,28 +40,29 @@ test('traversal', (t) => {
 
 test('depth first search', (t) => {
   const g: Graph = new Graph();
-  const v1 = g.createVertex('human1', {
+  const v1 = g.addVertex('human1', {
     n: 1,
   });
-  const v2 = g.createVertex('human2', {
+  const v2 = g.addVertex('human2', {
     n: 2,
   });
-  const v3 = g.createVertex('human3', {
+  const v3 = g.addVertex('human3', {
     n: 3,
   });
-  const v4 = g.createVertex('human4', {
+  const v4 = g.addVertex('human4', {
     n: 4,
   });
-  const v5 = g.createVertex('human5', {
+  const v5 = g.addVertex('human5', {
     n: 5,
   });
-  g.createEdge(v1, v3);
-  g.createEdge(v1, v4);
-  g.createEdge(v2, v3);
-  g.createEdge(v2, v4);
-  g.createEdge(v3, v5);
-  g.createEdge(v4, v5);
-  g.createEdge(v5, v1);
+  const addEdge = (v1: Vertex, v2: Vertex) => g.addEdge('a', v1, v2);
+  addEdge(v1, v3);
+  addEdge(v1, v4);
+  addEdge(v2, v3);
+  addEdge(v2, v4);
+  addEdge(v3, v5);
+  addEdge(v4, v5);
+  addEdge(v5, v1);
 
   const resultV1 = depthFirstSearch(v1);
   const resultNumsV1: number[] = resultV1.map(

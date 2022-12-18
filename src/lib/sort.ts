@@ -11,17 +11,17 @@ export function tsort(graph: Graph): TSortResult {
   const result: Vertex[] = [];
   const s: Vertex[] = [];
   g.vertices.forEach((v) => {
-    if (v.inEdges.size === 0) {
+    if (v.inE().length === 0) {
       s.push(v);
     }
   });
   while (s.length !== 0) {
     const n = s.shift();
     result.push(n);
-    for (const e of n.outEdges) {
+    for (const e of n.outE()) {
       const m = e.inVertex;
       g.deleteEdge(e);
-      if (m.inEdges.size === 0) {
+      if (m.inE().length === 0) {
         s.push(m);
       }
     }

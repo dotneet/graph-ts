@@ -6,10 +6,10 @@ import { decomposeSCC } from './scc';
 test('scc', (t) => {
   const graph: Graph = new Graph();
   const createV = (name: string): Vertex => {
-    return graph.createVertex(name);
+    return graph.addVertex(name);
   };
   const createEdge = (v1: Vertex, v2: Vertex): Edge => {
-    return graph.createEdge(v1, v2);
+    return graph.addEdge('connect', v1, v2);
   };
   const a = createV('a');
   const b = createV('b');

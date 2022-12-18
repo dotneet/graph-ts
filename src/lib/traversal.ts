@@ -10,11 +10,17 @@ export type TraversalCommandHasLabel = {
 };
 export type TraversalCommandOut = {
   type: 'TraversalCommandOut';
+  edgeLabel?: string;
+};
+export type TraversalCommandIn = {
+  type: 'TraversalCommandIn';
+  edgeLabel?: string;
 };
 export type TraversalCommand =
   | TraversalCommandV
   | TraversalCommandHasLabel
-  | TraversalCommandOut;
+  | TraversalCommandOut
+  | TraversalCommandIn;
 
 export class Traversal {
   constructor(
@@ -29,8 +35,12 @@ export class Traversal {
     this._commands.push({ type: 'TraversalCommandHasLabel', label });
     return this;
   }
-  out(): Traversal {
-    this._commands.push({ type: 'TraversalCommandOut' });
+  out(edgeLabel?: string): Traversal {
+    this._commands.push({ type: 'TraversalCommandOut', edgeLabel });
+    return this;
+  }
+  in(): Traversal {
+    this._commands.push({ type: 'TraversalCommandIn' });
     return this;
   }
   toArray(): Vertex[] {
@@ -52,7 +62,15 @@ export class Traversal {
         case 'TraversalCommandOut': {
           const set: Set<Vertex> = new Set();
           result.map((v) => {
-            v.outVertices.forEach((v) => set.add(v));
+            v.out(cmd.edgeLabel).forEach((v) => set.add(v));
+          });
+          result = Array.from(set);
+          break;
+        }
+        case 'TraversalCommandIn': {
+          const set: Set<Vertex> = new Set();
+          result.map((v) => {
+            v.in(cmd.edgeLabel).forEach((v) => set.add(v));
           });
           result = Array.from(set);
           break;
@@ -85,7 +103,7 @@ export function depthFirstSearchWithContext(
 ): Vertex[] {
   context.result.push(origin);
   context.visited.add(origin.id);
-  origin.outVertices.forEach((v) => {
+  origin.out().forEach((v) => {
     if (!context.visited.has(v.id)) {
       depthFirstSearchWithContext(v, context);
     }

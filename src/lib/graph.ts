@@ -25,12 +25,24 @@ export class Vertex {
     private _outEdges: Set<Edge> = new Set()
   ) {}
 
-  get inEdges() {
-    return this._inEdges;
+  inE(edgeLabel?: string): Edge[] {
+    return Array.from(this._inEdges).filter(
+      (e) => !edgeLabel || e.label === edgeLabel
+    );
   }
 
-  get outEdges() {
-    return this._outEdges;
+  outE(edgeLabel?: string): Edge[] {
+    return Array.from(this._outEdges).filter(
+      (e) => !edgeLabel || e.label === edgeLabel
+    );
+  }
+
+  out(edgeLabel?: string): Vertex[] {
+    return this.outE(edgeLabel).map((e) => e.inVertex);
+  }
+
+  in(edgeLabel?: string): Vertex[] {
+    return this.inE(edgeLabel).map((e) => e.outVertex);
   }
 
   addInEdge(edge: Edge) {
@@ -45,23 +57,12 @@ export class Vertex {
   deleteOutEdge(edge: Edge) {
     this._outEdges.delete(edge);
   }
-
-  get outVertices(): Set<Vertex> {
-    const result: Set<Vertex> = new Set();
-    this._outEdges.forEach((e) => result.add(e.inVertex));
-    return result;
-  }
-
-  get inVertices(): Set<Vertex> {
-    const result: Set<Vertex> = new Set();
-    this._inEdges.forEach((e) => result.add(e.outVertex));
-    return result;
-  }
 }
 
 export class Edge {
   constructor(
     public readonly id: string,
+    public readonly label: string,
     private _outVertex: Vertex,
     private _inVertex: Vertex,
     public props: Map<string, PropsValue>
@@ -88,11 +89,28 @@ export class Graph {
     return this._edges;
   }
 
+  V(idOrVertex?: string | Vertex): Traversal {
+    const t = new Traversal(this);
+    if (idOrVertex instanceof String) {
+      const id = idOrVertex as string;
+      if (!this._vertices.has(id)) {
+        return t;
+      }
+      const vertex = this._vertices.get(id);
+      return t.V(vertex);
+    } else if (idOrVertex instanceof Vertex) {
+      const vertex = idOrVertex as Vertex;
+      return t.V(vertex);
+    } else {
+      return t.V();
+    }
+  }
+
   traversal(): Traversal {
     return new Traversal(this);
   }
 
-  createVertex(
+  addVertex(
     label: string,
     props: PropsParameter = new Map(),
     id: string = uuidv4()
@@ -103,13 +121,14 @@ export class Graph {
   }
 
   // outVertex -- edge -> inVertex
-  createEdge(
+  addEdge(
+    label: string,
     outVertex: Vertex,
     inVertex: Vertex,
     props: PropsParameter = new Map(),
     id: string = uuidv4()
   ): Edge {
-    const e: Edge = new Edge(id, outVertex, inVertex, obj2map(props));
+    const e: Edge = new Edge(id, label, outVertex, inVertex, obj2map(props));
     outVertex.addOutEdge(e);
     inVertex.addInEdge(e);
     this._edges.set(id, e);
@@ -117,8 +136,8 @@ export class Graph {
   }
 
   deleteVertex(vertex: Vertex): void {
-    vertex.inEdges.forEach((e) => this._edges.delete(e.id));
-    vertex.outEdges.forEach((e) => this._edges.delete(e.id));
+    vertex.inE().forEach((e) => this._edges.delete(e.id));
+    vertex.outE().forEach((e) => this._edges.delete(e.id));
     this._vertices.delete(vertex.id);
   }
 
@@ -145,7 +164,7 @@ export class Graph {
       graph.deleteEdge(e);
     });
     edges.forEach((e) => {
-      graph.createEdge(e.inVertex, e.outVertex, e.props, e.id);
+      graph.addEdge(e.label, e.inVertex, e.outVertex, e.props, e.id);
     });
     return graph;
   }
@@ -155,7 +174,7 @@ export class Graph {
     const vertices: Map<string, Vertex> = new Map();
     for (const entry of this._vertices) {
       const v = entry[1];
-      const newVertex = graph.createVertex(v.label, new Map(v.props), v.id);
+      const newVertex = graph.addVertex(v.label, new Map(v.props), v.id);
       vertices.set(newVertex.id, newVertex);
     }
     for (const entry of this._edges) {
@@ -163,7 +182,7 @@ export class Graph {
       const outV = vertices.get(e.outVertex.id);
       const inV = vertices.get(e.inVertex.id);
       const props = new Map(e.props);
-      graph.createEdge(outV, inV, props, e.id);
+      graph.addEdge(e.label, outV, inV, props, e.id);
     }
     return graph;
   }
