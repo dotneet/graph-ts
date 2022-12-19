@@ -53,6 +53,30 @@ test('traversal', (t) => {
   t.is(g.V().limit(2).toArray().length, 2);
 });
 
+test('edge traversal', (t) => {
+  const g: Graph = new Graph();
+  const a = g.addVertex('a');
+  const b = g.addVertex('b');
+  const c = g.addVertex('c');
+  const d = g.addVertex('d');
+  g.addEdge('a_to_b', a, b);
+  g.addEdge('a_to_c', a, c);
+  g.addEdge('a_to_d', a, d);
+
+  const childLabels = g
+    .V(a)
+    .outE()
+    .inV()
+    .toArray()
+    .map((v) => v.label)
+    .sort();
+  t.is(JSON.stringify(childLabels), JSON.stringify(['b', 'c', 'd']));
+
+  const edges = g.V(a).outE().hasLabel('a_to_c').toArray();
+  t.is(edges.length, 1);
+  t.is(edges[0].label, 'a_to_c');
+});
+
 test('depth first search', (t) => {
   const g: Graph = new Graph();
   const v1 = g.addVertex('human1', {

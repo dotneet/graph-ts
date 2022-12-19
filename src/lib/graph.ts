@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Traversal } from './traversal';
+import { Traversal, VertexTraversal } from './traversal';
 
 export type PropsValue = string | number;
 type PropsParameter =
@@ -89,8 +89,8 @@ export class Graph {
     return this._edges;
   }
 
-  V(idOrVertex?: string | Vertex): Traversal {
-    const t = new Traversal(this);
+  V(idOrVertex?: string | Vertex): VertexTraversal {
+    const t = new VertexTraversal(this);
     if (idOrVertex instanceof String) {
       const id = idOrVertex as string;
       if (!this._vertices.has(id)) {
