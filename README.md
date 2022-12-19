@@ -8,6 +8,7 @@ in-memory graph database written in typescript.
 - Gremlin like graph traversal.
 - Topological Sort
 - Decomposition of SCC
+- Depth First Search
 
 ## Example
 
