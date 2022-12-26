@@ -45,6 +45,10 @@ export class Vertex {
     return this.inE(edgeLabel).map((e) => e.outVertex);
   }
 
+  has(key: string, value: PropsValue): boolean {
+    return this.props.get(key) === value;
+  }
+
   addInEdge(edge: Edge) {
     this._inEdges.add(edge);
   }
