@@ -1,4 +1,4 @@
-# graph-ts
+# @devneko/graph-ts
 
 in-memory graph database written in typescript.
 
@@ -13,6 +13,8 @@ in-memory graph database written in typescript.
 ## Example
 
 ```ts
+import { Graph } from '@devneko/graph-ts'
+
 // create a graph instance
 const g: Graph = new Graph();
 
